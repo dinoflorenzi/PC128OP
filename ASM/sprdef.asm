@@ -23,7 +23,8 @@ start
  tfr x ,y             ;------------------------------
  leax sprite,pcr     ;punta dati sprite
  ldx ,x
- lda ,x+           ;carica numero di pixel
+ lda #0
+ sta ,x+           ;resetta numero di pixel
  sty ,x             ;salva offset
  tfr x,y
  leax 2,x
