@@ -12,7 +12,7 @@ start
  sts ,x
  leax flags,pcr
  lda ,x
- ldx upsx,pcr   ;-------------------------------
+ leax upsx,pcr   ;-------------------------------
  ldd ,x
  pshs b
  ldb #$a0       ;calcolo offset da y,x
@@ -106,6 +106,7 @@ exit2
  sta 5,x
  leax sprite,pcr
  ldx ,x
+ leax 1,x
  ldy #$ffff
  sty ,x
  leax reg,pcr
