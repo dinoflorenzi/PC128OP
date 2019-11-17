@@ -1,4 +1,5 @@
 SPRDEF.k7 USAGE
+screen mode CONSOLE,,,,3 (160x200)
 loadm
 default loading and exec address &h6000, but relocating with loadm"cass:",offset
 entry point parameters:
@@ -8,6 +9,7 @@ exec address
 + 6 widht,height of the sprite
 
 SPRITEXY.K7 USAGE
+screen mode CONSOLE,,,,3 (160x200)
 loadm
 default loading and exec address &h6000, but relocating with loadm"cass:",offset
 entry point parameters:
