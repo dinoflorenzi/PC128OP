@@ -1,7 +1,7 @@
- bra start
-sprite fcb $0f,$a0            ;data pointer
-sx fcb $02                    ;size x
-sy fcb $08                     ;size y
+  bra start
+sprite fcb $62,$00           ;data pointer
+sx fcb $03                   ;size x
+sy fcb $0f                     ;size y
 sxn fcb $00                 ;size x neg               
 ix fcb $00                    ;index x
 iy fcb $00                    ;index y
@@ -18,9 +18,6 @@ start
  sta sxn,pcr
  lda sy,pcr
  sta iy,pcr
- lda $a7c0
- ora #$01
- sta $a7c0
  leax offset,pcr
  lda 1,x
  ldb #40
@@ -35,22 +32,43 @@ start
  sta ,x+
  lda sx,pcr
  sta ,x+
- lda sy,pcr
- sta ,x+
-loop2            
+ ldb sy,pcr
+ stb ,x+
+ mul
+ lslb
+ rola
+ leax d,x
+loop2
+ pshs x
+ pshs x
+loop      
+ lda $a7c0
+ ora #$01
+ sta $a7c0
+ lda ,y
+ sta ,x
+ lda $a7c0
+ anda #$fe
+ sta $a7c0
  lda ,y+
- sta ,x+       
+ sta 8,x
+ leax 16,x       
  dec ix,pcr       
- bne loop2
+ bne loop
  lda sx,pcr
  sta ix,pcr
+ puls x
+ pshs x
 shift
- ldb sxn,pcr
- lda b,x
+ lda ,x
  rora
- sta ,x+
+ sta 1,x
+ leax 16,x
  dec ix,pcr
  bne shift
+ puls x
+ leax 1,x
+ pshs x
  lda sx,pcr
  sta ix,pcr
  andcc #$fe
@@ -58,25 +76,34 @@ shift
  bne shift
  lda #7
  sta ib,pcr
+ puls x
+ puls x
+ pshs x
+ leax 8,x
+ pshs x
+ dec pg,pcr
+ bne shift
  lda sx,pcr
  nega
  leay a,y
  leay 40,y
+ puls x
+ puls x
+ lda sx,pcr
+ ldb #$10
+ mul
+ leax d,x
  dec iy,pcr
  andcc #$fe
- bne loop2
+ lbne loop2
  lda sy,pcr
  sta iy,pcr
- lda $a7c0
- anda #$fe
- sta $a7c0
- puls y
- dec pg,pcr
- bne loop2
-exit
  lda #2
  sta pg,pcr
  lds regs,pcr
  ldu regs+2,pcr
  rts
- 
+ fcb $80,$80,$80,$80,$80,$80,$80,$80
+ fcb $80,$80,$80,$80,$80,$80,$80,$80
+ fcb $80,$80,$80,$80,$80,$80,$80,$80
+ fcb $80,$80,$80,$80,$80,$80,$80,$80
