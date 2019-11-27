@@ -40,3 +40,21 @@ entry point parameters:
 exec address
 + 2 (16 bit) address to read sprite data
 + 4 x(16 bit),y(16 bit) pointers to integer variable (use varptr to get) setting the coordinates  x,y of the sprite on screen to put
+
+SCRGETPUT
+utility to get the screen and store in ram location compressed.
+USAGE.
+loadm
+use A%=&Hxxxx to set the location address to store the screen.
+exec &h6000 (default) to get the screen
+exec &h6002 (default+2) to put the screen
+every GET/PUT execution set the A% variable at the end of the data.
+Example below:
+10 loadm
+20 circlef(160,100),20,1
+30 A%=&h6200        'set dest ram address
+40 exec &h6000      'screen store
+50 cls
+60 A%=&h6200        'set source ram address
+70 exec &h6002      'resume screen
+
