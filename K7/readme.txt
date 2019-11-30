@@ -26,9 +26,16 @@ loadm
 default loading and exec address &h6000, but relocating with loadm"cass:",offset
 entry point parameters:
 exec address
-+ 2 (16 bit) address to write sprite data
++ 2 (16 bit) pointer to variable  (default A%) containing address sprite data
 + 4 widht (char) ,height (pixel) of the sprite
 the image to grab must be on the up-left corner of the screen. The width must be one char plus of the effective size. The height could be the same of the sprite in pixel.
+Every sprite acquisition update the pointer variable to the end of data, so you can store another sprite in sequence.
+Example below:
+10 cls:console,,,,2          screen mode 4 color
+20 print "A":print "A":pset(4,4),3     sprite example
+30 A%=&H6300             set sprite address data
+40 exec &h6000            get sprite ( size 2 char X 8 pixels default)
+50 ? hex$(A%)               print end of data address
 
 SPRITE4C.K7 
 utility to move sprite on the screen without clear the background.
@@ -38,8 +45,18 @@ loadm
 default loading and exec address &h6000, but relocating with loadm"cass:",offset
 entry point parameters:
 exec address
-+ 2 (16 bit) address to read sprite data
-+ 4 x(16 bit),y(16 bit) pointers to integer variable (use varptr to get) setting the coordinates  x,y of the sprite on screen to put
++ 2 hide sprite (default exec &h6002)
++ 4 (16 bit) point an address variable (default A%) to read sprite data
++ 6 x(16 bit),y(16 bit) pointers to integer variable (use varptr to get) setting the coordinates  x,y of the sprite on screen to put
+Example below:
+10 loadm
+20 cls
+30 A%=&H6300    (default variable)
+40 X%=160    (default variable)
+50 Y%=100    (default variable)
+60 exec &h6000      draw sprite
+70 a$=input$(1)      wait key press
+80 exec &h6002      hide sprite
 
 SCRGETPUT
 utility to get the screen and store in ram location compressed.
