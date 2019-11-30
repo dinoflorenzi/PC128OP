@@ -1,7 +1,7 @@
   bra start
-sprite fcb $62,$00           ;data pointer
-sx fcb $03                   ;size x
-sy fcb $0f                     ;size y
+sprite fcb $2a,$5f       ;data pointer
+sx fcb $02                   ;size x
+sy fcb $08                     ;size y
 sxn fcb $00                 ;size x neg               
 ix fcb $00                    ;index x
 iy fcb $00                    ;index y
@@ -26,6 +26,7 @@ start
  tfr d,y
  pshs y
  leax sprite,pcr     ;punta dati sprite
+ ldx ,x
  ldx ,x
  lda #$ff
  sta ,x+
@@ -100,10 +101,10 @@ shift
  sta iy,pcr
  lda #2
  sta pg,pcr
+ leay sprite,pcr
+ ldy ,y
+ stx ,y
  lds regs,pcr
  ldu regs+2,pcr
  rts
- fcb $80,$80,$80,$80,$80,$80,$80,$80
- fcb $80,$80,$80,$80,$80,$80,$80,$80
- fcb $80,$80,$80,$80,$80,$80,$80,$80
- fcb $80,$80,$80,$80,$80,$80,$80,$80
+ fcb $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff

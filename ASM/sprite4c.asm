@@ -1,12 +1,13 @@
  bra start
-sprite fcb $62,$00
+ bra hide
+sprite fcb $2a,$5f
 xhxl fcb $2b,$00
 yhyl fcb $2b,$07
 bitoffset fcb $00
 oldoffset fcb $00,$00
 offset fcb $00,$00
 sx fcb $03
-sy fcb $08
+sy fcb $10
 sxneg fcb $00
 ix fcb $00
 iy fcb $00
@@ -24,8 +25,6 @@ start
  rola
  leax xhxl,pcr
  ldx ,x
- cmpx #$8000
- bpl clear
  addd ,x
  pshs d
  lsr ,s
@@ -38,13 +37,13 @@ start
  andb #$07
  stb bitoffset,pcr   ; salva bitoffset
  puls d
- bra newpos
-clear
+ bra draw
+hide
  ldd #$ffff
-newpos
+draw
  std offset,pcr         ;carica nuova pos
  leax sprite,pcr     ;punta dati sprite
- ;ldx #sprite
+ ldx ,x
  ldx ,x
  ldd ,x
  std oldoffset,pcr
@@ -63,6 +62,15 @@ newpos
  ldu offset,pcr
  ldb bitoffset,pcr
  pshs x
+;sync2
+; lda $a7e7
+; anda #$80
+; cmpa #$80
+; bne sync2
+sync
+ lda $a7e7
+ anda #$80
+ bne sync
  cmpy #$ffff
  beq paste
 loop                   ; routine di ripristino
