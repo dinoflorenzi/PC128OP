@@ -53,8 +53,8 @@ draw
  sta sx,pcr
  sta ix,pcr
  nega
+ adda #40
  sta sxneg,pcr
- nega 
  ldb ,x+                    ;sy
  stb sy,pcr
  stb iy,pcr
@@ -90,13 +90,13 @@ loop                   ; routine di ripristino
  sta ix,pcr
  lda sxneg,pcr
  leay a,y
- leay 40,y
  dec iy,pcr
  bne loop
  lda sy,pcr
  sta iy,pcr
  bra skip
 paste
+ lda sx,pcr
  ldb sy,pcr
  mul
  lslb
@@ -147,7 +147,6 @@ loop2                   ; routine di piazzamento
  sta ix,pcr
  lda sxneg,pcr
  leau a,u
- leau 40,u
  dec iy,pcr
  bne loop2
  lda sy,pcr
