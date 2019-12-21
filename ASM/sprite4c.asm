@@ -1,30 +1,29 @@
  bra start
  bra hide
-sprite fcb $2a,$5f
-xhxl fcb $2b,$00
-yhyl fcb $2b,$07
-bitoffset fcb $00
+sprite fcb $2a,$5f   ;address var A%
+xhxl fcb $2b,$00     ;address var X%
+yhyl fcb $2b,$07     ;address var Y%
+bitoffset fcb $00     ;
 oldoffset fcb $00,$00
 offset fcb $00,$00
-sx fcb $03
-sy fcb $10
-sxneg fcb $00
-ix fcb $00
-iy fcb $00
-regs fcb $00,$00,$00,$00
+sx fcb $03             ; size x in char 
+sy fcb $10             ; size y in pixel
+ix fcb $00             ; x counter
+iy fcb $00             ; y counter
+sxneg fcb $00      ; newline offset
+regs fcb $00,$00,$00,$00   
 start
  leax regs,pcr
  sts ,x
  stu 2,x
- leax yhyl,pcr   ;-------------------------------
- ldx ,x
+ ;-------------------------------
+ leax [yhyl,pcr]
  lda 1,x
  ldb #$a0       ;calcolo offset da y,x
  mul
  lslb
  rola
- leax xhxl,pcr
- ldx ,x
+ leax [xhxl,pcr]
  addd ,x
  pshs d
  lsr ,s
@@ -43,21 +42,17 @@ hide
 draw
  std offset,pcr         ;carica nuova pos
  leax sprite,pcr     ;punta dati sprite
- ldx ,x
- ldx ,x
+ ldx [,x]
  ldd ,x
- std oldoffset,pcr
+ std oldoffset,pcr  
  ldd offset,pcr
  std ,x++
- lda ,x+                     ; sx
- sta sx,pcr
- sta ix,pcr
+ ldd ,x++                     ; sx
+ std sx,pcr
+ std ix,pcr
  nega
  adda #40
  sta sxneg,pcr
- ldb ,x+                    ;sy
- stb sy,pcr
- stb iy,pcr
  ldy oldoffset,pcr
  ldu offset,pcr
  ldb bitoffset,pcr
@@ -67,6 +62,11 @@ draw
 ; anda #$80
 ; cmpa #$80
 ; bne sync2
+ lda $a7c0
+ anda #$fe
+ pshs a
+ ora #$01
+ pshs a
 sync
  lda $a7e7
  anda #$80
@@ -74,14 +74,12 @@ sync
  cmpy #$ffff
  beq paste
 loop                   ; routine di ripristino
- lda $a7c0
- ora #$01
- sta $a7c0
+ lda ,s       
+ sta $a7c0   ; change video page
  lda ,x+      ;get  old point
  sta ,y      ;restore old point
- lda $a7c0     
- anda #$fe
- sta $a7c0
+ lda 1,s
+ sta $a7c0    ; change video page
  lda ,x+      ;get  old point
  sta ,y+      ;restore old point
  dec ix,pcr
@@ -107,11 +105,10 @@ skip
  ldu offset,pcr
  cmpu #$ffff
  beq exit
- puls y
+ ldy 2,s
 loop2                   ; routine di piazzamento
- lda $a7c0
- ora #$01
- sta $a7c0
+ lda ,s
+ sta $a7c0     ; change video page
  lda ,u           ;get new point
  sta ,y+        ;store new point
  lda b,x       ;get spr point
@@ -119,22 +116,18 @@ loop2                   ; routine di piazzamento
  ora b,x         ;or with pg2
  leax -8,x    ;point to spr data pg1
  coma          
+ pshs a       ; ****
  anda ,u
  sta ,u        ;mask new point
  lda b,x      ;get spr point
  ora ,u        ;or with dest point
  sta ,u        ;paste spr point
  leax +8,x 
- lda $a7c0     
- anda #$fe
- sta $a7c0
+ lda 2,s
+ sta $a7c0     ; change video page
  lda ,u           ;get new point
  sta ,y+        ;store new point
- lda b,x       ;get spr point
- leax -8,x     ;point to spr data pg1
- ora b,x         ;or with pg1
- leax +8,x    ;point to spr data pg2
- coma          
+ puls a         ;valore ****
  anda ,u
  sta ,u        ;mask new point
  lda b,x      ;get spr point
@@ -149,9 +142,7 @@ loop2                   ; routine di piazzamento
  leau a,u
  dec iy,pcr
  bne loop2
- lda sy,pcr
- sta iy,pcr
 exit
- lds regs,pc
+ lds regs,pcr
  ldu regs+2,pcr
  rts
