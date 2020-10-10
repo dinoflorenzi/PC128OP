@@ -1,3 +1,32 @@
+SPRCREATE0.K7 USAGE
+Capture sprite from screen memory to ram starting from upleft corner.
+Using routine locations you can set size, number of frames and two pointers to set position coordinates.
+If more than 1 frame is set, the frames must be put side by side on the screen.
+screen mode CONSOLE,,,,0 (320,200)
+loadm
+default loading and exec address &h6000, but relocating with loadm"cass:",offset
+entry point parameters:
+exec address
++ 2 chars width
++ 3 total bytes size ( char width * y pixels height)
++ 4 number of frames
++ 5 store pointer address data sprite (&h2a5f default A% var), every acquisition the pointer updates with the end of the data.
+
+The sprite block created has some functional addresses:
++ 0 y pointer address (Y% var default)
++ 2 x pointer address (X% var default)
++ 4 chars width
++ 5 total sprite size (255 bytes max)
++ 6 total sprites frames.
+The sprite frame location is used at runtime to select the frame.
+Setting frame to 0 the sprite is hidden.
+
+
+SPRPUT0.K7 USAGE
+Put multiple sprites to screen, after saving background data.
+You have to define the vector table address where are located every sprite address.
+The vector table must end with 0 value.
+
 SPRDEF.k7 USAGE
 screen mode CONSOLE,,,,3 (160x200)
 loadm
