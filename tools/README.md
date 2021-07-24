@@ -17,10 +17,10 @@ Now launch window terminal and type "IMG2PC128 3 filename.data asm" and the prog
 filename.data.bin containing picture bin data + asm code<br/>
 filename.data.pal.txt containing basic list with PALETTE settings.<br/>
 Now launch DCMOTO, select BASIC128 then select "FILE" menu and select filename.data.pal.txt by "KEYBOARD SIM", then add the following lines:<br/>
-1 CLEAR,&H5EFF<br/><br/>
-2 CONSOLE,,,,3:LOCATE,,0<br/>
+1 CONSOLE,,,,3:LOCATE,,0<br/>
 ...... PALETTE CODE<br/>
 1000 EXEC &h5F00:A$=INPUT$(1)<br/>
+tyep CLEAR,&H5EFF<br/>
 By debugger menu select ram page 7 then load filename.data.bin to the address from 5f00 to 9fff.<br/>
 Quit debugger and RUN basic program.<br/>
 
