@@ -3,6 +3,7 @@ Windows tool to convert picture to bin file loadable to PC128/Thomson MO6 comput
 The picture must be resized, colour reduced, and finally exported to raw file by GIMP program.<br/>
 usage:<br/>
 IM2PC128 scrmode inputfile asm<br/>
+  scrmode:    0 convert to 320x200 16 colour picture (2 colours/byte)<br/>
   scrmode:    2 convert to 320x200 4 colour picture<br/>
   scrmode:    3 convert to 160x200 16 colour picture<br/>
   inputfile:  gimp raw exported picture file (.data extension)<br/>
