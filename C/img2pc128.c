@@ -3,6 +3,7 @@
 char scrput[]={  0x30, 0x8d, 0x00, 0x71, 0xa6, 0x80, 0x27, 0x3e, 0x10, 0xef, 0x8d, 0x00, 0x66, 0x86, 0x02, 0x34, 0x02, 0x10, 0x8e, 0x00, 0x00, 0xb6, 0xa7, 0xc0, 0x8a, 0x01, 0xb7, 0xa7, 0xc0, 0xa6, 0x80, 0xe6, 0x80, 0xa7, 0xa0, 0x10, 0x8c, 0x1f, 0x41, 0x27, 0x05, 0x5a, 0x26, 0xf5, 0x20, 0xef, 0x10, 0x8e, 0x00, 0x00, 0xb6, 0xa7, 0xc0, 0x84, 0xfe, 0xb7, 0xa7, 0xc0, 0x6a, 0xe4, 0x26, 0xdf, 0x35, 0x02, 0x10, 0xee, 0x8d, 0x00, 0x2e, 0x39, 0x10, 0x8e, 0x00, 0x00, 0xb6, 0xa7, 0xc0, 0x8a, 0x01, 0xb7, 0xa7, 0xc0, 0xa6, 0x80, 0xa7, 0xa0, 0x10, 0x8c, 0x1f, 0x40, 0x26, 0xf6, 0x10, 0x8e, 0x00, 0x00, 0xb6, 0xa7, 0xc0, 0x84, 0xfe, 0xb7, 0xa7, 0xc0, 0xa6, 0x80, 0xa7, 0xa0, 0x10, 0x8c, 0x1f, 0x40, 0x26, 0xf6, 0x39, 0x00, 0x00 };
 int len;
 unsigned char cmp=0;
+int size2;
 unsigned char * header_data=NULL;
 unsigned char * header_data_cmap=NULL;
 unsigned char mem[16000];
@@ -19,6 +20,7 @@ int main(int argc,char *argv[])
    {
        printf("usage:\n"
               "im2pc128 scrmode inputfile asm\n"
+              "scrmode: 0 for 320x200 16 colors(2 colours/byte)\n"
               "scrmode: 2 for 320x200 4 colors\n"
               "scrmode: 3 for 160x200 16 colors\n"
               "inputfile: gimp2 .data exported picture\n"
@@ -59,15 +61,17 @@ int main(int argc,char *argv[])
     fseek(in1,0L,SEEK_SET);
     
     fseek(in2,0L,SEEK_END);
-    int size2=ftell(in2);
+    size2=ftell(in2);
     fseek(in2,0L,SEEK_SET);
-    //printf("size1 %d\n",size1);
-    //printf("size2 %d\n",size2);
+    printf("size1 %d\n",size1);
+    printf("size2 %d counted %d colours\n",size2,size2/3);
+    /*
     if(size1!=32000)
     {
         printf(".data file size not compatible (32000 bytes needed)\n");
         return 1;
     }
+    */
     unsigned char* buffer1=(unsigned char*)malloc(size1);
     unsigned char* buffer2=(unsigned char*)malloc(size2);
     fread(buffer1,size1,1,in1);
@@ -86,6 +90,7 @@ int main(int argc,char *argv[])
     {
         case 0:
         scr320x200x16();
+        break;
         case 2:
         scr320x200x4();
         break;
@@ -112,13 +117,50 @@ int main(int argc,char *argv[])
 
 void scr320x200x16()
 {
+    
+    printf("320x200x16\n");
+	width=320;
+    height=200;
+    rgb2bgr12(size2/3);
+    int size=height*width;
+    int index=0;
+    int i,b;
+    unsigned char pixel; 
+    for(i=0;i<size;i+=8)
+    {
+        unsigned char byte1=0;
+        unsigned char byte2=0;
+        unsigned char fg=255;
+        unsigned char bg=255;
+        
+        for(b=0;b<8;b++)
+        {
+            pixel=header_data[i+b];
+            if(fg!=pixel&&fg==255) fg=pixel;
+            if(bg!=pixel&&pixel!=fg&&bg==255) bg=pixel;
+        }
+       
+        if (bg==255)bg=fg;
+        byte2=(fg<<4)+bg;
+        for(b=0;b<8;b++)
+        {
+            pixel=header_data[i+b];
+            if(pixel==fg) 
+            byte1=byte1+pow(2,(7-b));
+        }
+            mem[index]=byte1;
+            mem[index+8000]=byte2;
+            index++;
+        }
+       
+    len=compress(mem);
 }
 void scr320x200x4()
 {
 	printf("320x200x4");
 	width=320;
     height=200;
-    rgb2bgr12(4);
+    rgb2bgr12(size2/3);
     
     int size=height*width;
     int index=0;
@@ -156,7 +198,7 @@ void scr320x200x4()
 
 void scr160x200x16()
 {
-    rgb2bgr12(16);
+    rgb2bgr12(size2/3);
     width=160;
     height=200;
     int size=height*width;
@@ -261,7 +303,7 @@ int compress(unsigned char * bufferin)
     bufferout[index+1]=count;
     index++;
     cmp=0;
-    index=16999;
+    //index=16999;
     if(index<16000)
     {
     for(i=0;i<index;i++)
