@@ -24,6 +24,6 @@ Now launch DCMOTO, select BASIC128 then select "FILE" menu and select filename.d
 tyep CLEAR,&H5EFF<br/>
 By debugger menu select ram page 7 then load filename.data.bin to the address from 5f00 to 9fff.<br/>
 Quit debugger and RUN basic program.<br/>
-[](https://github.com/dinoflorenzi/PC128OP/blob/master/pictures/FB_IMG_16273250003537527.jpg)
+![](https://github.com/dinoflorenzi/PC128OP/blob/master/pictures/FB_IMG_16273250003537527.jpg)
 
 
