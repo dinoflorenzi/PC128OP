@@ -26,4 +26,10 @@ By debugger menu select ram page 7 then load filename.data.bin to the address fr
 Quit debugger and RUN basic program.<br/>
 ![](https://github.com/dinoflorenzi/PC128OP/blob/master/pictures/FB_IMG_16273250003537527.jpg)
 
-
+## bin2k7.exe
+Windows tool to convert bin file to K7 file.<br/>
+usage:<br/>
+bin2k7 sourcefile outfilename destfile<br/>
+  sourcefile:   any binary file<br/>
+  outfilename:  internal file name<br/>
+  destfile:     generated K7 filename<br/>
