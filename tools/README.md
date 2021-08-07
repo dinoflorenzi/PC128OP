@@ -33,3 +33,13 @@ bin2k7 sourcefile outfilename destfile<br/>
   sourcefile:   any binary file<br/>
   outfilename:  internal file name<br/>
   destfile:     generated K7 filename<br/>
+
+## asc2k7.exe
+Windows tool to convert windows text file to K7 file.<br/>
+usage:<br/>
+type asc2k7 than follow input request.<br/>
+
+## k72asc.exe
+Windows tool to convert ascii saved k7 file to windows text file.<br/>
+usage:<br/>
+type k72asc than follow input request.<br/>
