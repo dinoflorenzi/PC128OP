@@ -1,6 +1,7 @@
 ## IM2PC128.exe
 Windows tool to convert picture to bin file loadable to PC128/Thomson MO6 computer.<br/><br/>
 The picture must be resized, colour reduced, and finally exported to raw file by GIMP program.<br/>
+Ensure alpha channel was removed.<br/>
 usage:<br/>
 IM2PC128 scrmode inputfile asm<br/>
   scrmode:    0 convert to 320x200 16 colour picture (2 colours/byte)<br/>
