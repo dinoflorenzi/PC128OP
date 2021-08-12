@@ -1,9 +1,9 @@
 #include<stdio.h>
 #include<math.h>
 char scrput[]={  0x30, 0x8d, 0x00, 0x71, 0xa6, 0x80, 0x27, 0x3e, 0x10, 0xef, 0x8d, 0x00, 0x66, 0x86, 0x02, 0x34, 0x02, 0x10, 0x8e, 0x00, 0x00, 0xb6, 0xa7, 0xc0, 0x8a, 0x01, 0xb7, 0xa7, 0xc0, 0xa6, 0x80, 0xe6, 0x80, 0xa7, 0xa0, 0x10, 0x8c, 0x1f, 0x41, 0x27, 0x05, 0x5a, 0x26, 0xf5, 0x20, 0xef, 0x10, 0x8e, 0x00, 0x00, 0xb6, 0xa7, 0xc0, 0x84, 0xfe, 0xb7, 0xa7, 0xc0, 0x6a, 0xe4, 0x26, 0xdf, 0x35, 0x02, 0x10, 0xee, 0x8d, 0x00, 0x2e, 0x39, 0x10, 0x8e, 0x00, 0x00, 0xb6, 0xa7, 0xc0, 0x8a, 0x01, 0xb7, 0xa7, 0xc0, 0xa6, 0x80, 0xa7, 0xa0, 0x10, 0x8c, 0x1f, 0x40, 0x26, 0xf6, 0x10, 0x8e, 0x00, 0x00, 0xb6, 0xa7, 0xc0, 0x84, 0xfe, 0xb7, 0xa7, 0xc0, 0xa6, 0x80, 0xa7, 0xa0, 0x10, 0x8c, 0x1f, 0x40, 0x26, 0xf6, 0x39, 0x00, 0x00 };
-int len;
+int len,scrmode;
 unsigned char cmp=0;
-int size2;
+int size,size2,ofs;
 unsigned char * header_data=NULL;
 unsigned char * header_data_cmap=NULL;
 unsigned char mem[16000];
@@ -14,6 +14,7 @@ unsigned int width,height;
 void scr320x200x16(void);
 void scr320x200x4(void);
 void scr160x200x16(void);
+void SPR_BM16();
 int main(int argc,char *argv[])
 {
    if(argc==1)
@@ -28,7 +29,7 @@ int main(int argc,char *argv[])
               );
    return 1;
    }
-	int scrmode=atoi(argv[1]);
+	scrmode=atoi(argv[1]);
     FILE *in1=NULL;
 	FILE *in2=NULL;
     strcpy(filename1,argv[2]);
@@ -97,6 +98,9 @@ int main(int argc,char *argv[])
         case 3:
         scr160x200x16();
         break;
+        case 13:
+        SPR_BM16();
+        break;
     }
 
     
@@ -104,10 +108,12 @@ int main(int argc,char *argv[])
     if(strcmp(argv[3],"asm")==0)
     fwrite(scrput,sizeof(scrput),1,out);
     fwrite(&cmp,1,1,out);
+    //fwrite(&height,1,1,out);
+    //fwrite(&width,1,1,out);
     fwrite(mem,len,1,out);
     fclose(out);
     printf("generated bin file: %s\n",filename3);
-    len++;
+    len+=3;
     if(argc==4)
     if(strcmp(argv[3],"asm")==0)
     len+=sizeof(scrput);
@@ -162,7 +168,7 @@ void scr320x200x4()
     height=200;
     rgb2bgr12(size2/3);
     
-    int size=height*width;
+    size=height*width;
     int index=0;
     int i,b;
     for(i=0;i<size;i+=8)
@@ -193,28 +199,51 @@ void scr320x200x4()
         index++;
     }
  len=compress(mem);
+ 
 }
 
 
 void scr160x200x16()
 {
+	ofs=0;
     rgb2bgr12(size2/3);
     width=160;
     height=200;
-    int size=height*width;
+   
+    size=height*width;
     int index=0;
     unsigned char byte1=0;
     unsigned char byte2=0;
     int i;
     for(i=0;i<size;i+=4)
     {
-        byte1=header_data[i+1]+(header_data[i]<<4);
-        byte2=header_data[i+3]+(header_data[i+2]<<4);
+        byte1=header_data[i+1]+(header_data[i]<<4)+ofs+(ofs<<4);
+        byte2=header_data[i+3]+(header_data[i+2]<<4)+ofs+(ofs<<4);
         mem[index]=byte1;
         mem[index+8000]=byte2;
         index++;
     }
  len=compress(mem);
+}
+
+void SPR_BM16()
+{
+	ofs=0;
+    rgb2bgr12(size2/3);
+    width=20;
+    height=64;
+    size=(height*width)/2;
+    int index=0;
+    unsigned char byte1=0;
+    unsigned char byte2=0;
+    for(int x=0;x<width;x+=2)
+    for(int y=0;y<height;y++)
+    {
+        byte1=header_data[x+1+y*width]+(header_data[x+y*width]<<4)+ofs+(ofs<<4);
+        mem[index]=byte1;
+        index++;
+    }
+ len=size;
 }
 
 unsigned short gamma(unsigned char c)
@@ -237,7 +266,22 @@ void rgb2bgr12(int ncol)
         int i;
      FILE *pal=NULL;
     pal=fopen(filename4,"w");
-     
+    switch(scrmode)
+    {
+        case 0:
+        fprintf(pal,"1 LOCATE,,0\n\r");
+        fprintf(pal,"1000 EXEC 'specify address\n\r");
+        break;
+        case 2:
+        fprintf(pal,"1 LOCATE,,0:CONSOLE ,,,,2\n\r");
+        fprintf(pal,"1000 EXEC 'specify address\n\r");
+        break;
+        case 3:
+        fprintf(pal,"1 LOCATE,,0:CONSOLE ,,,,3\n\r");
+        fprintf(pal,"1000 'EXEC specify address\n\r");
+        fprintf(pal,"1010 A$=INPUT$(1)\n\r");
+        break;
+    }
     for(i=0;i<ncol*3;i+=3)
     {
 
@@ -248,7 +292,7 @@ void rgb2bgr12(int ncol)
     unsigned short color=r+g+b;
 
     //printf("%d - %x  \n",i,color);
-    fprintf(pal,"%d PALETTE %d,&H%x \r\n",(i/3+1)*10,i/3,color);
+    fprintf(pal,"%d PALETTE %d,&H%x \r\n",(i/3+1)*10,i/3+ofs,color);
     
     }
       fclose(pal);
@@ -260,9 +304,9 @@ int compress(unsigned char * bufferin)
 {
     unsigned char b;
     int index=0;
-    unsigned char bufferout[16000];
+    unsigned char bufferout[size*2];
         unsigned char oldb=bufferin[0];
-        int i,count =1;
+        int i,count =0;
     for(i=0;i<8000;i++)
     {
         b=bufferin[i];       
@@ -278,10 +322,10 @@ int compress(unsigned char * bufferin)
         oldb=b;
     }
     bufferout[index]=oldb;
-    bufferout[index+1]=count;
+    bufferout[index+1]=count+1;
     
     oldb=bufferin[8000];
-    count =1;
+    count =0;
     index+=2;
     
     for(i=8000;i<16000;i++)
@@ -300,7 +344,7 @@ int compress(unsigned char * bufferin)
         
     }
     bufferout[index]=oldb;
-    bufferout[index+1]=count;
+    bufferout[index+1]=count+1;
     index++;
     cmp=0;
     //index=16999;
